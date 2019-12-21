@@ -24,9 +24,9 @@ class User(private val driver: WebDriver) {
     fun loginAsRoot() {
         driver.get(loginPage)
         waitForClickable(By.id("id_l.L.loginButton"))
-        driver.findElement(By.id("id_l.L.login")).sendKeys("root");
-        driver.findElement(By.id("id_l.L.password")).sendKeys(rootPassword);
-        driver.findElement(By.id("id_l.L.loginButton")).click();
+        driver.findElement(By.id("id_l.L.login")).sendKeys("root")
+        driver.findElement(By.id("id_l.L.password")).sendKeys(rootPassword)
+        driver.findElement(By.id("id_l.L.loginButton")).click()
     }
 
     fun createUser(login: String, password: String): Boolean {
