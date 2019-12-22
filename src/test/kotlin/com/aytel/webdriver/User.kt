@@ -6,6 +6,7 @@ import org.openqa.selenium.WebDriver
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
+import java.lang.Exception
 import java.util.stream.Collectors
 
 class User(private val driver: WebDriver) {
@@ -16,8 +17,8 @@ class User(private val driver: WebDriver) {
     private val createUserId: String = "id_l.U.createNewUser"
     private val createUserOkId: String = "id_l.U.cr.createUserOk"
 
-    private fun waitForClickable(by: By) {
-        val wait = WebDriverWait(driver, 10)
+    private fun waitForClickable(by: By, seconds: Long = 10) {
+        val wait = WebDriverWait(driver, seconds)
         wait.until<WebElement>(ExpectedConditions.visibilityOfElementLocated(by))
     }
 
@@ -29,7 +30,7 @@ class User(private val driver: WebDriver) {
         driver.findElement(By.id("id_l.L.loginButton")).click()
     }
 
-    fun createUser(login: String, password: String): Boolean {
+    fun createUser(login: String, password: String) {
         driver.get(usersPage)
         waitForClickable(By.id(createUserId))
         driver.findElement(By.id(createUserId)).click()
@@ -40,11 +41,15 @@ class User(private val driver: WebDriver) {
         driver.findElement(By.id("id_l.U.cr.confirmPassword")).sendKeys(password)
         driver.findElement(By.id(createUserOkId)).click()
 
-        return try {
-            WebDriverWait(driver, 2).until(ExpectedConditions.urlContains("editUser/$login"))
-            true
+        try {
+            waitForClickable(By.className("errorSeverity"), 1)
+            throw Exception(driver.findElement(By.className("errorSeverity")).text)
         } catch (e: TimeoutException) {
-            false
+        }
+        try {
+            waitForClickable(By.className("error-bulb2"), 1)
+            throw Exception("empty login")
+        } catch (e: TimeoutException) {
         }
     }
 

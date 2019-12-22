@@ -1,10 +1,8 @@
 package com.aytel.webdriver
 
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Test
 import org.openqa.selenium.WebDriver
 import org.openqa.selenium.safari.SafariDriver
 import java.util.*
@@ -30,17 +28,43 @@ class UserTest {
     @Test
     fun testSuccessful() {
         val login: String = UUID.randomUUID().toString()
-        assertTrue(user.createUser(login, "pass"))
+        assertDoesNotThrow {user.createUser(login, "pass") }
         assertTrue(user.deleteUser(login))
     }
 
     @Test
     fun testEmpty() {
-        assertFalse(user.createUser("", "pass"))
+        assertThrows<Exception>("empty login") {user.createUser("", "pass")}
     }
 
     @Test
     fun testWithSpace() {
-        assertFalse(user.createUser("lo gin", "pass"))
+        assertThrows<Exception>("Restricted character ' ' in the name") {
+            user.createUser("lo gin", "pass")
+        }
+    }
+
+    @Test
+    fun testRoot() {
+        assertThrows<Exception>("Removing null is prohibited") {
+            user.createUser("root", "pass")
+        }
+    }
+
+    @Test
+    fun testGuest() {
+        assertThrows<Exception>("Removing null is prohibited") {
+            user.createUser("guest", "pass")
+        }
+    }
+
+    @Test
+    fun testNonUnique() {
+        val login: String = UUID.randomUUID().toString()
+        user.createUser(login, "pass")
+        assertThrows<Exception>("Value should be unique: login") {
+            user.createUser(login, "pass")
+        }
+        assertTrue(user.deleteUser(login))
     }
 }
